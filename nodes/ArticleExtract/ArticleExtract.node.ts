@@ -5,6 +5,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
+import { mapConcurrent } from '../shared/concurrency';
 import { extractArticle } from '../shared/article';
 
 export class ArticleExtract implements INodeType {
@@ -32,28 +33,62 @@ export class ArticleExtract implements INodeType {
 				required: true,
 				placeholder: 'https://example.com/article',
 			},
+			{
+				displayName: 'Concurrent Processing',
+				name: 'concurrentProcessing',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to process multiple input items concurrently',
+			},
+			{
+				displayName: 'Concurrency',
+				name: 'concurrency',
+				type: 'number',
+				default: 3,
+				typeOptions: { minValue: 1, maxValue: 10 },
+				displayOptions: { show: { concurrentProcessing: [true] } },
+			},
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		const result: INodeExecutionData[] = [];
-		for (let index = 0; index < this.getInputData().length; index++) {
-			const link = this.getNodeParameter('link', index) as string;
-			try {
-				const article = await extractArticle(this.helpers.httpRequest, link);
-				result.push({ json: article, pairedItem: { item: index } });
-			} catch (error) {
-				const failure = new NodeOperationError(this.getNode(), error as Error, {
-					itemIndex: index,
-				});
-				if (!this.continueOnFail()) throw failure;
-				result.push({
-					json: { link, error: failure.message },
-					error: failure,
-					pairedItem: { item: index },
-				});
-			}
-		}
+		const items = this.getInputData();
+		if (!items.length) return [[]];
+		const concurrency = this.getNodeParameter('concurrentProcessing', 0, false)
+			? Math.max(
+					1,
+					Math.min(
+						10,
+						Math.floor(this.getNodeParameter('concurrency', 0, 3) as number),
+					),
+				)
+			: 1;
+		const result = await mapConcurrent(
+			items,
+			concurrency,
+			async (item, index): Promise<INodeExecutionData> => {
+				try {
+					const link = this.getNodeParameter('link', index) as string;
+					const article = await extractArticle(this.helpers.httpRequest, link);
+					return { json: article, pairedItem: { item: index } };
+				} catch (error) {
+					const failure = new NodeOperationError(
+						this.getNode(),
+						error as Error,
+						{
+							itemIndex: index,
+						},
+					);
+					if (!this.continueOnFail()) throw failure;
+					return {
+						json: { ...item.json, error: failure.message },
+						binary: item.binary,
+						error: failure,
+						pairedItem: { item: index },
+					};
+				}
+			},
+		);
 		return [result];
 	}
 }
