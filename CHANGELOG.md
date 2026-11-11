@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- Stream EPUB generation through temporary files for large books.
+- Limit concurrent image downloads and serialize image conversion.
+- Add optional article extraction concurrency while preserving input order.
+- Preserve input fields and binary attachments in continued extraction errors.
+- Add EPUB series names and positions to book metadata.
+
 ## 0.1.1
 
 - Generate styles before linting a fresh checkout.
