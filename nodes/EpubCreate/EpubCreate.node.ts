@@ -12,7 +12,7 @@ import type {
 import { buildEpub, ChapterPreparer } from '../shared/epub';
 import type { Chapter, PreparedChapter } from '../shared/epub';
 import { bookMetadataFields, resolveMetadata } from './metadata';
-import type { BookMetadata } from './metadata';
+import type { BookMetadataInput } from './metadata';
 
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool -- Aggregates workflow items and exposes three separate outputs.
 export class EpubCreate implements INodeType {
@@ -102,7 +102,7 @@ export class EpubCreate implements INodeType {
 		const failed: INodeExecutionData[] = [];
 		const chapters: PreparedChapter[] = [];
 		const options = this.getNodeParameter('options', 0) as {
-			bookMetadata?: Partial<BookMetadata>;
+			bookMetadata?: BookMetadataInput;
 			customCss?: string;
 			fileName?: string;
 		};

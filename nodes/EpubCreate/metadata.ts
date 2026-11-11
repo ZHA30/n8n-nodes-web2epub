@@ -19,23 +19,48 @@ export interface BookMetadata {
 	seriesPosition?: number;
 }
 
+type TextList = { entries?: { value: string }[] };
+export type BookMetadataInput = Omit<
+	Partial<BookMetadata>,
+	'creator' | 'contributor' | 'subject'
+> & {
+	creator?: TextList;
+	contributor?: TextList;
+	subject?: TextList;
+};
+
+function textList(
+	displayName: string,
+	name: string,
+	description: string,
+): INodeProperties {
+	return {
+		displayName,
+		name,
+		description,
+		type: 'fixedCollection',
+		default: {},
+		typeOptions: { multipleValues: true },
+		placeholder: `Add ${displayName}`,
+		options: [
+			{
+				displayName,
+				name: 'entries',
+				values: [
+					{ displayName: 'Value', name: 'value', type: 'string', default: '' },
+				],
+			},
+		],
+	};
+}
+
 export const bookMetadataFields: INodeProperties[] = [
-	{
-		displayName: 'Contributor',
-		name: 'contributor',
-		type: 'string',
-		default: [],
-		typeOptions: { multipleValues: true },
-		description: 'People or organizations contributing to the book',
-	},
-	{
-		displayName: 'Creator',
-		name: 'creator',
-		type: 'string',
-		default: [],
-		typeOptions: { multipleValues: true },
-		description: 'Authors or other primary creators',
-	},
+	textList(
+		'Contributor',
+		'contributor',
+		'People or organizations contributing to the book',
+	),
+	textList('Creator', 'creator', 'Authors or other primary creators'),
 	{
 		displayName: 'Date',
 		name: 'date',
@@ -92,14 +117,7 @@ export const bookMetadataFields: INodeProperties[] = [
 		description:
 			'Identifier or URL of the publication from which this book is derived',
 	},
-	{
-		displayName: 'Subject',
-		name: 'subject',
-		type: 'string',
-		default: [],
-		typeOptions: { multipleValues: true },
-		description: 'Topics or keywords describing the book',
-	},
+	textList('Subject', 'subject', 'Topics or keywords describing the book'),
 	{
 		displayName: 'Title',
 		name: 'title',
@@ -110,7 +128,7 @@ export const bookMetadataFields: INodeProperties[] = [
 ];
 
 export function resolveMetadata(
-	input: Partial<BookMetadata>,
+	input: BookMetadataInput,
 	chapters: { language: string }[],
 	fileName: string,
 ): BookMetadata {
@@ -131,8 +149,17 @@ export function resolveMetadata(
 		? normalizeLanguage(input.language)
 		: detected;
 	if (!language) throw new Error('Language must be a valid BCP 47 tag');
+	const list = (value?: TextList): string[] | undefined => {
+		if (value === undefined) return undefined;
+		return (value.entries || [])
+			.map((entry) => entry.value)
+			.filter((entry) => entry.trim());
+	};
 	return {
 		...input,
+		creator: list(input.creator),
+		contributor: list(input.contributor),
+		subject: list(input.subject),
 		title: input.title?.trim() || basename(fileName).replace(/\.epub$/i, ''),
 		identifier: input.identifier?.trim() || 'urn:uuid:' + randomUUID(),
 		language,
