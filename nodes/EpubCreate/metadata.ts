@@ -15,6 +15,8 @@ export interface BookMetadata {
 	date?: string;
 	rights?: string;
 	source?: string;
+	series?: string;
+	seriesPosition?: number;
 }
 
 export const bookMetadataFields: INodeProperties[] = [
@@ -73,6 +75,15 @@ export const bookMetadataFields: INodeProperties[] = [
 		default: '',
 		description: 'Copyright or license statement',
 	},
+	{ displayName: 'Series', name: 'series', type: 'string', default: '' },
+	{
+		displayName: 'Series Position',
+		name: 'seriesPosition',
+		type: 'number',
+		default: 1,
+		typeOptions: { minValue: 0, numberPrecision: 2 },
+		description: 'Position within the series, including fractional volumes',
+	},
 	{
 		displayName: 'Source',
 		name: 'source',
@@ -103,6 +114,13 @@ export function resolveMetadata(
 	chapters: { language: string }[],
 	fileName: string,
 ): BookMetadata {
+	if (input.seriesPosition !== undefined && !input.series?.trim())
+		throw new Error('Series is required when Series Position is set');
+	if (
+		input.seriesPosition !== undefined &&
+		(!Number.isFinite(input.seriesPosition) || input.seriesPosition < 0)
+	)
+		throw new Error('Series Position must be a non-negative number');
 	const counts = new Map<string, number>();
 	for (const chapter of chapters) {
 		if (chapter.language !== 'und')
