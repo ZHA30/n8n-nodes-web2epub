@@ -1,0 +1,8 @@
+{
+  "node": "n8n-nodes-web2epub.epubCreate",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Data & Storage"],
+  "resources": { "primaryDocumentation": [] },
+  "alias": ["EPUB", "Book", "Ebook"]
+}

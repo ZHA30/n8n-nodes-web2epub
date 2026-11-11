@@ -1,0 +1,60 @@
+{
+	"name": "n8n-nodes-web2epub",
+	"version": "0.1.0",
+	"description": "Extract web articles and create EPUB books in n8n",
+	"license": "MIT",
+	"author": {
+		"name": "ZHA30",
+		"email": "zha303050@gmail.com"
+	},
+	"homepage": "https://github.com/ZHA30/n8n-nodes-web2epub#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"epub",
+		"readability"
+	],
+	"files": [
+		"dist",
+		"NOTICE",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"scripts": {
+		"build": "node scripts/styles.mjs && n8n-node build",
+		"dev": "node scripts/styles.mjs && n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix"
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": false,
+		"nodes": [
+			"dist/nodes/ArticleExtract/ArticleExtract.node.js",
+			"dist/nodes/EpubCreate/EpubCreate.node.js"
+		]
+	},
+	"dependencies": {
+		"@mozilla/readability": "^0.6.0",
+		"fflate": "^0.8.2",
+		"html-encoding-sniffer": "^4.0.0",
+		"iconv-lite": "^0.6.3",
+		"jsdom": "^26.1.0",
+		"sanitize-html": "^2.17.0",
+		"sharp": "^0.34.0",
+		"tinyld": "^1.3.4"
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.56.1",
+		"@types/html-encoding-sniffer": "^3.0.2",
+		"@types/jsdom": "^21.1.7",
+		"@types/node": "^24.0.0",
+		"@types/sanitize-html": "^2.16.0",
+		"n8n-workflow": "^2.47.0",
+		"typescript": "^5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
