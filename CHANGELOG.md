@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Detect article language from content before using page declarations.
+
 ## 0.3.0
 
 - Allow Creator, Contributor, and Subject fields to be removed completely.
