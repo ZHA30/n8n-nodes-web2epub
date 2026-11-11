@@ -41,6 +41,7 @@ export async function extractArticle(request: Request, link: string) {
 			const article = new Readability(document).parse();
 			if (!article?.content || !article.textContent?.trim())
 				throw new Error('No article content found');
+			const detectedLanguage = detectLanguage(article.textContent);
 			const fragment = new JSDOM(article.content, { url: resource.url });
 			try {
 				absoluteUrls(fragment.window.document);
@@ -52,9 +53,9 @@ export async function extractArticle(request: Request, link: string) {
 					author: article.byline || '',
 					publishedAt: article.publishedTime || '',
 					language:
-						language ||
-						normalizeLanguage(article.lang) ||
-						detectLanguage(article.textContent),
+						detectedLanguage !== 'und'
+							? detectedLanguage
+							: language || normalizeLanguage(article.lang) || 'und',
 					siteName: article.siteName || '',
 					excerpt: article.excerpt || '',
 				};
