@@ -24,8 +24,8 @@
 	"scripts": {
 		"build": "node scripts/styles.mjs && n8n-node build",
 		"dev": "node scripts/styles.mjs && n8n-node dev",
-		"lint": "n8n-node lint",
-		"lint:fix": "n8n-node lint --fix",
+		"lint": "node scripts/styles.mjs && n8n-node lint",
+		"lint:fix": "node scripts/styles.mjs && n8n-node lint --fix",
 		"release": "n8n-node release",
 		"prepublishOnly": "n8n-node prerelease"
 	},
