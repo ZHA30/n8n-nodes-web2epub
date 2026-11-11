@@ -1,3 +1,7 @@
+import { createReadStream } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import type {
 	IExecuteFunctions,
@@ -102,72 +106,85 @@ export class EpubCreate implements INodeType {
 			customCss?: string;
 			fileName?: string;
 		};
-		const preparer = new ChapterPreparer(
-			this.helpers.httpRequest,
-			this.getNodeParameter('downloadImages', 0) as boolean,
-		);
-		for (let index = 0; index < items.length; index++) {
-			try {
-				const chapter: Chapter = {
-					inputIndex: index,
-					title: this.getNodeParameter('chapterTitle', index) as string,
-					content: this.getNodeParameter('content', index) as string,
-				};
-				const prepared = await preparer.prepare(chapter);
-				chapters.push(prepared);
-				successful.push({
-					json: {
-						...items[index].json,
-						title: chapter.title,
-						content: chapter.content,
-						chapterIndex: chapters.length,
-					},
-					pairedItem: { item: index },
-				});
-			} catch (error) {
-				failed.push({
-					json: {
-						...items[index].json,
-						stage: 'generate',
-						error: (error as Error).message,
-					},
-					pairedItem: { item: index },
-				});
-			}
-		}
-		if (!chapters.length) return [[], [], failed];
+		const directory = await mkdtemp(join(tmpdir(), 'web2epub-'));
 		try {
-			const fileName = options.fileName?.trim() || 'book.epub';
-			const book = resolveMetadata(
-				options.bookMetadata || {},
-				chapters,
-				fileName,
+			const preparer = new ChapterPreparer(
+				this.helpers.httpRequest,
+				this.getNodeParameter('downloadImages', 0) as boolean,
+				directory,
 			);
-			const buffer = buildEpub(chapters, book, options.customCss || '');
-			const binary = await this.helpers.prepareBinaryData(
-				buffer,
-				fileName.endsWith('.epub') ? fileName : fileName + '.epub',
-				'application/epub+zip',
-			);
-			return [
-				[
-					{
+			for (let index = 0; index < items.length; index++) {
+				try {
+					const chapter: Chapter = {
+						inputIndex: index,
+						title: this.getNodeParameter('chapterTitle', index) as string,
+						content: this.getNodeParameter('content', index) as string,
+					};
+					const prepared = await preparer.prepare(chapter);
+					chapters.push(prepared);
+					successful.push({
 						json: {
-							...book,
-							chapterCount: chapters.length,
-							failedCount: failed.length,
+							...items[index].json,
+							title: chapter.title,
+							content: chapter.content,
+							chapterIndex: chapters.length,
 						},
-						binary: { data: binary },
-						pairedItem: chapters.map((chapter) => ({
-							item: chapter.inputIndex,
-						})),
-					},
-				],
-				successful,
-				failed,
-			];
-		} catch (error) {
-			throw new NodeOperationError(this.getNode(), error as Error);
+						pairedItem: { item: index },
+					});
+				} catch (error) {
+					failed.push({
+						json: {
+							...items[index].json,
+							stage: 'generate',
+							error: (error as Error).message,
+						},
+						pairedItem: { item: index },
+					});
+				}
+			}
+			if (!chapters.length) return [[], [], failed];
+			try {
+				const fileName = options.fileName?.trim() || 'book.epub';
+				const book = resolveMetadata(
+					options.bookMetadata || {},
+					chapters,
+					fileName,
+				);
+				const outputPath = join(directory, 'book.epub');
+				await buildEpub(chapters, book, options.customCss || '', outputPath);
+				const stream = createReadStream(outputPath);
+				let binary;
+				try {
+					binary = await this.helpers.prepareBinaryData(
+						stream,
+						fileName.endsWith('.epub') ? fileName : fileName + '.epub',
+						'application/epub+zip',
+					);
+				} finally {
+					stream.destroy();
+				}
+				return [
+					[
+						{
+							json: {
+								...book,
+								chapterCount: chapters.length,
+								failedCount: failed.length,
+							},
+							binary: { data: binary },
+							pairedItem: chapters.map((chapter) => ({
+								item: chapter.inputIndex,
+							})),
+						},
+					],
+					successful,
+					failed,
+				];
+			} catch (error) {
+				throw new NodeOperationError(this.getNode(), error as Error);
+			}
+		} finally {
+			await rm(directory, { recursive: true, force: true });
 		}
 	}
 }

@@ -6,16 +6,16 @@ Turn web articles into EPUB books with two community nodes for n8n.
 > Install `n8n-nodes-web2epub` from Community Nodes in self-hosted n8n running Node.js 24 or later.
 
 > [!WARNING]
-> Pages that require JavaScript rendering or pagination need additional processing.
+> Large books require filesystem or supported external binary storage in n8n and temporary disk space for images and the EPUB; pages requiring JavaScript rendering or pagination need additional processing.
 
 ## Features
 
 Extract articles from URLs, assemble HTML chapters, and export an EPUB with embedded images and adjustable styling.
 
-- **Article Extract**: Fetch a URL and return readable HTML, a title, language, and article metadata.
-- **EPUB Create**: Combine input titles and HTML in order, with separate outputs for the book, included chapters, and failed items.
-- **Images**: Embed and deduplicate images, convert unsupported formats to PNG, or omit images for a text-only book.
-- **Book metadata**: Set EPUB 3.3 and Dublin Core fields, with a filename-derived title, generated identifier, and detected language when omitted.
+- **Article Extract**: Fetch URLs sequentially or with bounded concurrency, return readable HTML and article metadata in input order, and preserve input fields in continued-error results.
+- **EPUB Create**: Write chapters and resources to temporary files, stream the EPUB to n8n binary storage, and return the book, included chapters, and failed items separately.
+- **Images**: Download up to three images concurrently, convert one image at a time, deduplicate resources, and optionally omit images for a text-only book.
+- **Book metadata**: Set EPUB 3 and Dublin Core fields, including series and position, with a filename-derived title, generated identifier, and detected language when omitted.
 - **Typography**: Use a reflowable layout that respects reader preferences, with optional CSS overrides and a custom filename.
 
 ## References
