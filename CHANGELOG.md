@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Generate styles before linting a fresh checkout.
+- Configure CI and npm Trusted Publishing with provenance.
+
 ## 0.1.0
 
 - Extract readable articles and identify their language.
