@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-web2epub",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Extract web articles and create EPUB books in n8n",
 	"license": "MIT",
 	"author": {

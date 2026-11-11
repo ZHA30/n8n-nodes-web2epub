@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- Allow Creator, Contributor, and Subject fields to be removed completely.
+- Store repeated metadata values as named rows. Re-enter these fields in existing workflows after upgrading.
+
 ## 0.2.0
 
 - Stream EPUB generation through temporary files for large books.
