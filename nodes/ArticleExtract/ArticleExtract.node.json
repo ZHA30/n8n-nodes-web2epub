@@ -1,8 +1,14 @@
 {
-  "node": "n8n-nodes-web2epub.articleExtract",
-  "nodeVersion": "1.0",
-  "codexVersion": "1.0",
-  "categories": ["Data & Storage"],
-  "resources": { "primaryDocumentation": [] },
-  "alias": ["Readability", "Article", "Web"]
+	"node": "n8n-nodes-web2epub.articleExtract",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage"],
+	"resources": {
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/ZHA30/n8n-nodes-web2epub#features"
+			}
+		]
+	},
+	"alias": ["Readability", "Article", "Web"]
 }

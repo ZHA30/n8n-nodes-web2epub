@@ -3,7 +3,7 @@
 Turn web articles into EPUB books with two community nodes for n8n.
 
 > [!NOTE]
-> Requires self-hosted n8n with Node.js 24 or later.
+> Install `n8n-nodes-web2epub` from Community Nodes in self-hosted n8n running Node.js 24 or later.
 
 > [!WARNING]
 > Pages that require JavaScript rendering or pagination need additional processing.

@@ -25,7 +25,9 @@
 		"build": "node scripts/styles.mjs && n8n-node build",
 		"dev": "node scripts/styles.mjs && n8n-node dev",
 		"lint": "n8n-node lint",
-		"lint:fix": "n8n-node lint --fix"
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
 	},
 	"n8n": {
 		"n8nNodesApiVersion": 1,
@@ -51,10 +53,23 @@
 		"@types/jsdom": "^21.1.7",
 		"@types/node": "^24.0.0",
 		"@types/sanitize-html": "^2.16.0",
+		"auto-changelog": "^2.7.0",
 		"n8n-workflow": "^2.47.0",
+		"release-it": "^20.2.1",
 		"typescript": "^5.9.3"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ZHA30/n8n-nodes-web2epub.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ZHA30/n8n-nodes-web2epub/issues"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	}
 }

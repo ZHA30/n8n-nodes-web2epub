@@ -1,0 +1,9 @@
+{
+	"git": {
+		"commitMessage": "chore(release): v${version}\n\nPrepare the npm package and changelog for v${version}.",
+		"tagName": "v${version}"
+	},
+	"github": {
+		"release": false
+	}
+}

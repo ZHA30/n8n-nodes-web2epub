@@ -3,3 +3,5 @@ dist/
 *.tsbuildinfo
 nodes/shared/styles.ts
 .DS_Store
+*.tgz
+.npmrc
